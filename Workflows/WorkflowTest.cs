@@ -23,7 +23,7 @@ namespace workflow_core_test.Workflows
                 })
                 .Saga(saga => saga
                     .StartWith<Task1>()
-                        .CompensateWith<UndoTask1>()
+                        .CompensateWith<UndoTask1>(t=>t.Input(s=>s.Name, d=> "teste"))
                     .Then<Task2>()
                         .CompensateWith<UndoTask2>()
                     .Then<Task3>()
@@ -74,9 +74,10 @@ namespace workflow_core_test.Workflows
 
         public class UndoTask1 : StepBody
         {
+            public string Name{get;set;}
             public override ExecutionResult Run(IStepExecutionContext context)
             {
-                Console.WriteLine("Undoing Task 1");
+                Console.WriteLine("Undoing Task 1 "+Name);
                 return ExecutionResult.Next();
             }
         }
