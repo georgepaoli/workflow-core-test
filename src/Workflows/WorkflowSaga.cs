@@ -3,12 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Logging;
 using WorkflowCore.Interface;
 using WorkflowCore.Models;
 
 namespace workflow_core_test.Workflows
 {
-    public class WorkflowTest : IWorkflow
+    public class WorkflowSaga : IWorkflow
     {
         public string Id => this.GetType().Name;
         public int Version => 1;
@@ -23,7 +24,7 @@ namespace workflow_core_test.Workflows
                 })
                 .Saga(saga => saga
                     .StartWith<Task1>()
-                        .CompensateWith<UndoTask1>(t=>t.Input(s=>s.Name, d=> "teste"))
+                        .CompensateWith<UndoTask1>(t => t.Input(s => s.Id, d => this.Id))
                     .Then<Task2>()
                         .CompensateWith<UndoTask2>()
                     .Then<Task3>()
@@ -31,14 +32,28 @@ namespace workflow_core_test.Workflows
                     .Then<Task4>()
                         .CompensateWith<UndoTask4>()
                 )
-                .OnError(WorkflowCore.Models.WorkflowErrorHandling.Retry, TimeSpan.FromSeconds(5))
+                //.OnError(WorkflowCore.Models.WorkflowErrorHandling.Retry, TimeSpan.FromSeconds(5))
                 .Then(context => Console.WriteLine("End"));
         }
 
         public class Task1 : StepBody
         {
+            private readonly ILogger<Task1> logger;
+
+            public Task1(ILogger<Task1> logger)
+            {
+                Console.WriteLine("construtor com di");
+                this.logger = logger;
+            }
+
+            public Task1(){
+                Console.WriteLine("construtor sem di");
+            }
+
             public override ExecutionResult Run(IStepExecutionContext context)
             {
+                this.logger.LogInformation("Log test");
+
                 Console.WriteLine("Doing Task 1");
                 return ExecutionResult.Next();
             }
@@ -74,10 +89,11 @@ namespace workflow_core_test.Workflows
 
         public class UndoTask1 : StepBody
         {
-            public string Name{get;set;}
+            public string Id { get; set; }
+
             public override ExecutionResult Run(IStepExecutionContext context)
             {
-                Console.WriteLine("Undoing Task 1 "+Name);
+                Console.WriteLine("Undoing Task 1. Id=" + Id);
                 return ExecutionResult.Next();
             }
         }

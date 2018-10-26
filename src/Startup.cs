@@ -41,7 +41,7 @@ namespace workflow_core_test
             app.UseMvc();
 
             var host = app.ApplicationServices.GetService<WorkflowCore.Interface.IWorkflowHost>();
-            host.RegisterWorkflow<Workflows.WorkflowTest>();
+            host.RegisterWorkflow<Workflows.WorkflowSaga>();
             host.Start();
         }
     }

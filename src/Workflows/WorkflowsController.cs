@@ -21,7 +21,7 @@ namespace workflow_core_test.Workflows
         [HttpGet("start-workflow-test")]
         public ActionResult<string> StartWorkflowTest()
         {
-            return this.wfc.StartWorkflow(nameof(Workflows.WorkflowTest)).Result;
+            return this.wfc.StartWorkflow(nameof(Workflows.WorkflowSaga)).Result;
         }
     }
 }
