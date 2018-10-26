@@ -11,27 +11,11 @@ using Xunit;
 
 public class WorkflowTestCustom : WorkflowTest<WorkflowSaga, object>
 {
-    protected override void Setup()
+    protected override void ConfigureServices(IServiceCollection services)
     {
-        IServiceCollection services = new ServiceCollection();
-
-        //setup dependency injection
         services.AddLogging(configure => configure.AddConsole());
         services.AddTransient<WorkflowSaga.Task1>();
         services.AddWorkflow();
-        //ConfigureServices(services);
-
-        var serviceProvider = services.BuildServiceProvider();
-
-        //config logging
-        // var loggerFactory = serviceProvider.GetService<ILoggerFactory>();
-        // loggerFactory.AddConsole(LogLevel.Debug);
-
-        PersistenceProvider = serviceProvider.GetService<IPersistenceProvider>();
-        Host = serviceProvider.GetService<IWorkflowHost>();
-        Host.RegisterWorkflow<WorkflowSaga, object>();
-        //Host.OnStepError += Host_OnStepError;
-        Host.Start();
     }
 }
 
